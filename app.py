@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, jsonify, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import sqlite3
+
+from helpers import login_required
 
 app = Flask(__name__)
 
@@ -74,6 +76,99 @@ def login():
         if user is None or not check_password_hash(user["hash"], password):
             return render_template("login.html", error="Invalid username or password.")
 
+        session["user_id"] = user["id"]
         return render_template("index.html", username=username)
 
     return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return render_template("login.html")
+
+@app.route("/api/words")
+@login_required
+def get_words():
+    count = request.args.get("count", default=100, type=int)
+
+    db = get_db()
+    cursor = db.cursor()
+    rows = cursor.execute("SELECT word FROM words ORDER BY RANDOM() LIMIT ?", (count,)).fetchall()
+    db.close()
+
+    stream = [row["word"] for row in rows]
+
+    return jsonify({"words": stream})
+
+
+@app.route("/api/submit_race", methods = ["POST"])
+@login_required
+def submit_race():
+    data = request.get_json()
+
+    duration_mode = data.get("duration_mode")
+    correct_chars = data.get("correct_chars")
+    total_chars_typed = data.get("total_chars_typed")
+
+    if duration_mode not in (15, 30, 60):
+        return jsonify({"error": "Invalid duration mode."}), 400
+    if correct_chars is None or total_chars_typed is None:
+        return jsonify({"error": "Missing required data."}), 400
+
+    minutes = duration_mode / 60
+    wpm = round((correct_chars / 5) / minutes, 2)
+    accuracy = round((correct_chars / total_chars_typed) * 100, 2) if total_chars_typed > 0 else 0.00
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO races (user_id, duration_mode, wpm, accuracy, correct_chars) VALUES (?, ?, ?, ?, ?)",
+        (session["user_id"], duration_mode, wpm, accuracy, correct_chars)
+    )
+
+    db.commit()
+    db.close()
+
+    return jsonify({"wpm": wpm, "accuracy": accuracy})
+
+
+@app.route("/leaderboard")
+def leaderboard():
+    duration_mode = request.args.get("duration_mode", default=30, type=int)
+    if duration_mode not in (15, 30, 60):
+        duration_mode = 30
+
+    db = get_db()
+    cursor = db.cursor()
+
+    top_scores = db.execute(
+        """
+        SELECT users.username, races.wpm, races.accuracy, races.completed_at
+        FROM races
+        JOIN users ON races.user_id = users.id
+        where races.duration_mode = ?
+        ORDER BY races.wpm DESC
+        LIMIT 10
+        """,
+        (duration_mode, )
+    ).fetchall()
+
+    db.close()
+
+    return render_template("leaderboard.html", scores = top_scores, current_mode = duration_mode)
+
+
+@app.route("/history")
+@login_required
+def history():
+
+    db = get_db()
+    cursor = db.cursor()
+
+    races = db.execute(
+        "SELECT duration_mode, wpm, accuracy, completed_at FROM races WHERE user_id = ? ORDER BY completed_at DESC",
+        (session["user_id"],)
+    ).fetchall()
+    db.close()
+
+    return render_template("history.html", races=races)
