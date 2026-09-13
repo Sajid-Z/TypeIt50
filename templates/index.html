@@ -1,15 +1,13 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div>
-      <h1>Welcome to TypeRacer! {{username}}</h1>
-      <br />
-      <button onclick="window.location.href = '/logout'">Logout</button>
-    </div>
-  </body>
-</html>
+{% extends "layout.html" %} {% block content %}
+<div id="mode-select">
+  <button data-mode="15">15s</button>
+  <button data-mode="30">30s</button>
+  <button data-mode="60">60s</button>
+</div>
+
+<div id="timer">30</div>
+<div id="word-stream"></div>
+<input id="race-input" type="text" autocomplete="off" autofocus />
+<div id="results" style="display: none"></div>
+
+{% endblock %}
