@@ -3,18 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Register | TypeIt50</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
-    <form action="/register" method="POST">
-      <input type="text" name="username" placeholder="Username" />
-      <input type="password" name="password" placeholder="Password" />
-      <input
-        type="password"
-        name="confirmation"
-        placeholder="Confirm Password"
-      />
-      <input type="submit" value="Register" />
-    </form>
+    <main class="auth-page">
+      <section class="auth-panel">
+        <p class="auth-kicker">TypeIt50 / new operator</p>
+        <h1>Make your<br /><em>mark.</em></h1>
+        <p class="auth-intro">Create a profile and turn every burst of typing into a measurable personal best.</p>
+        <form action="/register" method="POST" class="auth-form">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Choose a handle" required />
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="At least one secret" required />
+          <label for="confirmation">Confirm password</label>
+          <input type="password" id="confirmation" name="confirmation" placeholder="Repeat it" required />
+          {% if error %}<p class="form-message error-message">{{ error }}</p>{% endif %}
+          <input class="auth-submit" type="submit" value="Create account" />
+        </form>
+        <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
+      </section>
+      <aside class="auth-mark" aria-hidden="true"><span>02</span><strong>START<br />SMALL<br />GO<br />FURTHER</strong></aside>
+    </main>
   </body>
 </html>

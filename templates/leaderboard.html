@@ -1,0 +1,29 @@
+{% extends "layout.html" %} {% block content %}
+<section class="page-heading">
+	<div>
+		<p>TypeIt50 / public record</p>
+		<h1>Top ten</h1>
+	</div>
+	<p>Fast hands, clean runs. Scores are ranked by words per minute.</p>
+</section>
+
+<div class="mode-tabs" aria-label="Leaderboard duration">
+	{% for mode in (15, 30, 60) %}
+	<a href="/leaderboard?duration_mode={{ mode }}" class="{% if current_mode == mode %}active{% endif %}">{{ mode }} sec</a>
+	{% endfor %}
+</div>
+
+{% if scores %}
+<table class="data-table">
+	<thead>
+		<tr><th>Rank / handle</th><th>WPM</th><th>Accuracy</th><th>Completed</th></tr>
+	</thead>
+	<tbody>
+		{% for score in scores %}
+		<tr><td>{{ "%02d"|format(loop.index) }} / {{ score.username }}</td><td>{{ score.wpm }}</td><td>{{ score.accuracy }}%</td><td>{{ score.completed_at }}</td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p class="empty-state">No recorded runs for this duration yet.</p>
+{% endif %} {% endblock %}

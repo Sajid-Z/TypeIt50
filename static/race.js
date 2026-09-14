@@ -19,20 +19,53 @@ async function loadWords(){
     renderStream();
 }
 
-function renderStream(){
+function renderStream() {
     let html = "";
-    for (let i = 0; i < targetText.length; i++){
-        const char = targetText[i];
-        let cls = "untyped"
-        if(i < typedText.length){
-            cls = (typedText[i] === char) ? "correct" : "incorrect";
+    let wordStart = 0;
+
+    while (wordStart < targetText.length) {
+        let wordEnd = targetText.indexOf(" ", wordStart);
+
+        if (wordEnd === -1) {
+            wordEnd = targetText.length;
         }
-        else if(i === typedText.length){
-            cls = "current";
+
+        html += `<span class="word">`;
+
+        for (let i = wordStart; i < wordEnd; i++) {
+            const char = targetText[i];
+            let cls = "untyped";
+
+            if (i < typedText.length) {
+                cls = typedText[i] === char ? "correct" : "incorrect";
+            } else if (i === typedText.length) {
+                cls = "current";
+            }
+
+            html += `<span class="${cls}">${char}</span>`;
         }
-        html += `<span class="${cls}">${char === " " ? "&nbsp;" : char}</span>`;
+
+        html += `</span>`;
+
+        if (wordEnd < targetText.length) {
+            html += " ";
+        }
+
+        wordStart = wordEnd + 1;
     }
+
     wordStreamE1.innerHTML = html;
+
+    const currentChar = wordStreamE1.querySelector(".current");
+    const currentWord = currentChar?.closest(".word");
+
+    if (currentWord) {
+        currentWord.scrollIntoView({
+            behavior: "auto",
+            block: "center",
+            inline: "nearest"
+        });
+    }
 }
 
 inputE1.addEventListener("input", (e) => {

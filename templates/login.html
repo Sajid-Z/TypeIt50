@@ -3,24 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Log in | TypeIt50</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
-    <form action="/login" method="post">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required /><br /><br />
-      <label for="password">Password:</label>
-      <input
-        type="password"
-        id="password"
-        name="password"
-        required
-      /><br /><br />
-      <input type="submit" value="Login" /> <br />
-      <br />
-      <a href="/register">Don't have an account? Register here</a>
-    </form>
-
-    <p>{{message}}</p>
+    <main class="auth-page">
+      <section class="auth-panel">
+        <p class="auth-kicker">TypeIt50 / access terminal</p>
+        <h1>Back to<br /><em>the line.</em></h1>
+        <p class="auth-intro">Sign in to keep your runs, compare your pace, and chase the next clean score.</p>
+        <form action="/login" method="post" class="auth-form">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required />
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+          {% if error %}<p class="form-message error-message">{{ error }}</p>{% endif %}
+          {% if message %}<p class="form-message">{{ message }}</p>{% endif %}
+          <input class="auth-submit" type="submit" value="Log in" />
+        </form>
+        <p class="auth-switch">New here? <a href="/register">Create an account</a></p>
+      </section>
+      <aside class="auth-mark" aria-hidden="true"><span>01</span><strong>TYPE<br />FAST<br />THINK<br />CLEAR</strong></aside>
+    </main>
   </body>
 </html>

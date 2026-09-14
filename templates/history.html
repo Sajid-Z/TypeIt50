@@ -1,0 +1,23 @@
+{% extends "layout.html" %} {% block content %}
+<section class="page-heading">
+  <div>
+    <p>TypeIt50 / private record</p>
+    <h1>Your runs</h1>
+  </div>
+  <p>A quiet archive of every race you have submitted.</p>
+</section>
+
+{% if races %}
+<table class="data-table">
+  <thead>
+    <tr><th>Duration</th><th>WPM</th><th>Accuracy</th><th>Completed</th></tr>
+  </thead>
+  <tbody>
+    {% for race in races %}
+    <tr><td>{{ race.duration_mode }} sec</td><td>{{ race.wpm }}</td><td>{{ race.accuracy }}%</td><td>{{ race.completed_at }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty-state">Your first run is waiting on the starting line.</p>
+{% endif %} {% endblock %}
